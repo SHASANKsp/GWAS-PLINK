@@ -1,0 +1,68 @@
+Interactive Job:
+
+screen -S ""
+sinfo
+salloc --account=shasank --partition=gpu --nodes=1 --ntasks-per-node=72 --mem=100gb --exclusive /bin/bash -i
+srun --ntasks=32 ./script
+squeue -u shasank
+ssh node
+Run==================================>
+cltA+cltD
+
+THE END:
+
+
+BCFTOOLS:
+
+bgzip -c file.vcf > file.vcf.gz
+tabix -p vcf file.vcf.gz
+
+bcftools stats 1011_allchr_prepro_dp.vcf.gz  > 1011_dp.stat
+
+bcftools concat -f filename -Oz -o ukb22828_allchr.vcf.gz --thread 72
+
+bcftools view -v snp -Oz -o  --thread 72
+
+bcftools query -f '%POS\n' TATASANS_601_merge_all_chr.vcf.gz | wc -l
+
+bcftools filter -e 'AC==0' .vcf.gz -Oz -o 
+bcftools filter -e 'AC==AN' .vcf.gz -Oz -o  
+
+
+bcftools filter -e 'AC==AN' .vcf.gz -Ou | bcftools view -m2 -M2 -v snps  -Oz -o .vcf.gz
+
+bcftools filter -e 'AC==AN' .vcf.gz -Ou | bcftools view -m2 -M2 -v snps  -Ou |
+
+bcftools view -r 23,24 2084_allchr_snps.vcf.gz -Oz -o 2084_allchr_snps_xy.vcf.gz --thread 72
+
+bcftools mpileup -Ou -f ref.fa aln.bam | bcftools call -Ou -mv | bcftools filter -s LowQual -e '%QUAL<20 || DP>100' > var.flt.vcf
+
+
+
+
+bcftools +fill-tags 1000Genomes.bcf | bcftools query -f'%CHROM\t%POS\t%REF\t%ALT\t%AN\t%AC\n' | bgzip -c > AFs.tab.gz
+tabix -s1 -b2 -e2 AFs.tab.gz
+
+bcftools view -Ou -s sample1,sample2 file.vcf | bcftools query -f %INFO/AC\t%INFO/AN\n
+
+
+
+bcftools query -f'%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QUAL\t%QD\t%MMQ\t%VQSLOD\t%DP\t%AC\t%AN\n' 1011_allchr_mergevcfs.vcf  > 1011_allchr_details.txt
+#bcftools query -f'%CHROM\t%POS\t%ID\t%REF\t%ALT\t%QD\t%VQSLOD\n' 1011_allchr_mergevcfs.vcf  > 1011_allchr_details.txt
+
+
+bcftools view -e 'QUAL < 30 || FORMAT/DP >=10 || QD > 20 || MMQ < 40 || GQ >= 20 || VQSLOD >= 7.81' ../TATA_AC_filter.vcf.gz -o TATA_vcfQC_all_filter.vcf
+
+bcftools view -e 'QD > 20'  -Oz -o 
+bcftools view -e 'GQ >= 20'  -Oz -o 
+https://github.com/samtools/bcftools/issues/1384
+
+bcftools view -i "QD < 2" 2084_allchr_ac0_acan_bi.vcf.gz -Oz -o 2084_allchr_prepro_qd2.vcf.gz --thread 72
+
+plink2 --pfile 5_sam_Geno_0002 --freq --out TATA_freq_data
+
+
+egrep -v "^#" VIE_GATK.vcf | cut -f 8 | sed 's/^.*;QD=\([0-9]*.[0-9]*\);.*$/\1/' > QD.txt
+
+bcftools view -S wblistf.txt ../ukb22828_258merge.vcf.gz -Oz -o ukb22828_258merge_wb.vcf.gz --force-sample --thread 72  &> 258wb_log.txt
+

@@ -1,0 +1,33 @@
+plink --vcf 2084snp_vqslod.vcf.gz  --keep-allele-order --recode  --out 2084_for_hwe
+
+
+plink2 --bgen ukb_imp_chr21_v3.bgen --sample ukb_imp_chr21_v3_s.sample --export vcf bgz vcf-dosage=DS
+
+
+plink2 --bgen ukb22828_cXY_b0_v3.bgen  --sample new/ukb_sample/ukb22828_cXY_b0_v3_s486288.sample --ref-from-fa   --export vcf vcf-dosage=DS
+
+plink --bfile  --hardy --out 
+
+cat .hwe | grep ALL | awk -v bf=10-6 '$9<bf {print $2}' > ${fname}_male_snp.exclude
+
+
+plink --bfile  --filter-males --make-bed --out 
+
+plink --bfile --filter-females --make-bed --out 
+
+
+plink --bfile  --make-bed --out --maf
+plink --bfile  --make-bed --out --geno
+plink --bfile  --make-bed --out --mind
+
+bcftools filter -r chrX -Oz -o 2084xqc.vcf.gz --thread 72 
+
+plink2 --vcf  --make-pgen --set-missing-var-ids @:#:\$r:\$a --out 
+
+
+plink --vcf ../ukb22828_cXY.vcf.gz --recode vcf bgz --exclude ex_chrXY.txt --out ukb22828_cXY_r2qc --threads 72
+
+plink --vcf ../ukb22828_cXY.vcf.gz --recode vcf bgz --keep wblist.txt --out ukb22828_cXY_wb --threads 72
+
+plink2 --bfile gfinal50.preprocessed_final_x --geno-counts --keep-males --keep-if PHENO1 == 1 --out genom_ctrl
+
